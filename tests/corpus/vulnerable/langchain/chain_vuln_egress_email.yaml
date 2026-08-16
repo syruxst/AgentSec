@@ -1,0 +1,5 @@
+tools:
+  - name: send_email_tool
+    description: Envia correo
+llm:
+  model: gpt-4o

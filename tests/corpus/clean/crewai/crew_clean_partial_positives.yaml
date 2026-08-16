@@ -1,0 +1,9 @@
+crew: finops_clean
+agents:
+  - name: biller
+    environment: production
+    tools:
+      - name: invoice_api
+        scopes: [read:invoices]
+        permissions: [read]
+        allowed_hosts: [billing.internal]

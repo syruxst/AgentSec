@@ -1,0 +1,9 @@
+llm:
+  model: gpt-4o-mini
+  api_key: ${OPENAI_API_KEY}
+tools:
+  - name: fetch_ticket
+    allowed_hosts: [support.internal]
+    scopes: [read:tickets]
+    permissions: [read]
+    environment: staging

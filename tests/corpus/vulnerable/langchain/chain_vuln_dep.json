@@ -1,0 +1,4 @@
+{
+  "llm": { "model": "gpt-4" },
+  "dependencies": ["langchain-community", "agentkit"]
+}

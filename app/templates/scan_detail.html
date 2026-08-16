@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentSec - Scan #{{ record.id }}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>AgentSec</h1>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/api/rules">Reglas API</a>
+    <a href="/api/scans">Scans API</a>
+  </nav>
+</header>
+<main>
+  <p><a href="/">&larr; volver</a></p>
+  <section class="cards">
+    <div class="card"><span class="num">{{ record.score }}</span><small>score / 100</small></div>
+    <div class="card"><span class="num">{{ record.findings|length }}</span><small>hallazgos</small></div>
+    <div class="card"><span class="num">{{ record.scanned_files }}</span><small>archivos</small></div>
+    <div class="card"><span class="num">{{ record.duration_ms }} ms</span><small>duracion</small></div>
+  </section>
+  <p><b>Proyecto:</b> {{ record.project }} &nbsp; <b>Framework:</b> {{ record.framework or '-' }}</p>
+
+  <section>
+    <h2>Reporte detallado</h2>
+    <iframe src="/report/{{ record.id }}" style="width:100%;height:600px;border:1px solid #e4e7eb;border-radius:8px"></iframe>
+  </section>
+</main>
+</body>
+</html>

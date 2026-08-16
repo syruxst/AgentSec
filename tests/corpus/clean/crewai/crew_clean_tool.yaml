@@ -1,0 +1,8 @@
+crew: web_clean
+agents:
+  - name: scraper
+    environment: staging
+    tools:
+      - name: allowlisted_fetcher
+        scopes: [read:public]
+        allowed_hosts: [cdn.internal]

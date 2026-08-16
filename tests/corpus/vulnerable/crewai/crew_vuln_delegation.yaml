@@ -1,0 +1,6 @@
+crew: support
+agents:
+  - name: triage
+    allow_delegation: true
+    tools:
+      - name: ticket_lookup

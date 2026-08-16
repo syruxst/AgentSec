@@ -1,0 +1,6 @@
+[crew]
+name = "full"
+
+[[agents]]
+name = "runner"
+tools = [{ name = "import_all_tools" }]

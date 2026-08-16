@@ -1,0 +1,5 @@
+tools:
+  - name: query_sql_agent
+    description: Interprete de consultas SQL
+llm:
+  model: gpt-4

@@ -1,0 +1,8 @@
+llm:
+  model: gpt-4o-mini
+tools:
+  - name: RunShellSafe
+    sandbox: true
+    allowed_commands: ["ls", "cat", "pwd"]
+    allowed_paths: ["/srv/docs"]
+    scopes: [read:docs]

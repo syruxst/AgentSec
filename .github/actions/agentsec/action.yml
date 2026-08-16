@@ -1,0 +1,82 @@
+name: 'AgentSec Scan'
+description: 'Auditoria shift-left de seguridad para agentes de IA (LangChain/CrewAI) en CI.'
+author: 'AgentSec'
+
+inputs:
+  path:
+    description: 'Ruta al proyecto con configs de agentes.'
+    required: false
+    default: '.'
+  threshold:
+    description: 'Umbral de puntaje que marca FAIL (default 60).'
+    required: false
+    default: '60'
+  allow:
+    description: 'Reglas a ignorar separadas por coma (ej: AS-101,AS-104).'
+    required: false
+    default: ''
+  format:
+    description: 'Formato del reporte: text|json|sarif|html'
+    required: false
+    default: 'sarif'
+  report_path:
+    description: 'Ruta donde guardar el reporte (ej: artifacts/agentsec.sarif).'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Instalar AgentSec'
+      shell: bash
+      run: |
+        python -m pip install --quiet --upgrade "git+https://github.com/agentsec/agentsec.git@main" || \
+          python -m pip install --quiet --upgrade agentsec
+
+    - name: 'Ejecutar scan'
+      id: scan
+      shell: bash
+      env:
+        AGENTSEC_PATH: ${{ inputs.path }}
+        AGENTSEC_THRESHOLD: ${{ inputs.threshold }}
+        AGENTSEC_ALLOW: ${{ inputs.allow }}
+        AGENTSEC_FORMAT: ${{ inputs.format }}
+      run: |
+        allow_args=""
+        if [ -n "$AGENTSEC_ALLOW" ]; then
+          IFS=',' read -r -a rules <<< "$AGENTSEC_ALLOW"
+          for r in "${rules[@]}"; do allow_args="$allow_args --allow $r"; done
+        fi
+        set +e
+        agentsec scan "$AGENTSEC_PATH" \
+          --format "$AGENTSEC_FORMAT" \
+          --threshold "$AGENTSEC_THRESHOLD" $allow_args \
+          > agentsec-output 2>&1
+        code=$?
+        set -e
+        echo "AgentSec exit code: $code"
+        cat agentsec-output
+        echo "exitcode=$code" >> "$GITHUB_OUTPUT"
+
+    - name: 'Guardar reporte'
+      if: ${{ inputs.report_path != '' }}
+      shell: bash
+      run: |
+        cp agentsec-output "${{ inputs.report_path }}"
+
+    - name: 'Fallar el job si hay hallazgos segun politica'
+      if: always()
+      shell: bash
+      env:
+        SCAN_EXIT: ${{ steps.scan.outputs.exitcode }}
+      run: |
+        code="${SCAN_EXIT:-0}"
+        if [ "$code" -ge 1 ]; then
+          echo "::error::AgentSec hallazgos: exit code $code (>=1). Revisa el reporte."
+          exit "$code"
+        fi
+        exit 0
+
+branding:
+  icon: 'shield'
+  color: 'purple'

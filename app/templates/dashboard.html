@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentSec - Panel</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>AgentSec</h1>
+  <nav>
+    <a href="/" class="active">Dashboard</a>
+    <a href="/api/rules">Reglas API</a>
+    <a href="/docs">API docs</a>
+  </nav>
+</header>
+<main>
+  <section class="scan-form">
+    <h2>Nuevo escaneo</h2>
+    <form id="scanForm">
+      <input type="text" id="scanPath" name="path" placeholder="Ruta a escanear (ej: C:\xampp\htdocs\proyecto_de_titulo\examples\vulnerable)"
+             value="C:\Users\danie\.config\opencode" required>
+      <button type="submit">Escanear</button>
+      <span id="scanMsg"></span>
+    </form>
+  </section>
+
+  <section class="cards">
+    <div class="card"><span class="num">{{ stats.total_scans }}</span><small>scans ejecutados</small></div>
+    <div class="card"><span class="num">{{ stats.avg_score if stats.avg_score is not none else '-' }}</span><small>score promedio</small></div>
+    <div class="card"><span class="num">{{ stats.max_findings }}</span><small>max hallazgos</small></div>
+    <div class="card"><span class="num">{{ stats.last_scan or '-' }}</span><small>ultimo scan</small></div>
+  </section>
+
+  <section>
+    <h2>Scans recientes</h2>
+    {% if scans %}
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Proyecto</th><th>Framework</th><th>Score</th>
+            <th>Archivos</th><th>Hallazgos</th><th>Fecha</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for s in scans %}
+        <tr>
+          <td>{{ s.id }}</td>
+          <td>{{ s.project }}</td>
+          <td>{{ s.framework or '-' }}</td>
+          <td><span class="badge {% if s.score >= 80 %}ok{% elif s.score >= 60 %}warn{% else %}fail{% endif %}">{{ s.score }}</span></td>
+          <td>{{ s.scanned_files }}</td>
+          <td>{{ s.findings.get('findings')|length }}</td>
+          <td>{{ s.created_at }}</td>
+          <td><a href="/scan/{{ s.id }}">ver</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Sin scans aun. Ejecuta <code>agentsec scan &lt;ruta&gt;</code> y luego
+      <code>curl -X POST /api/scan -d '{"path": "&lt;ruta&gt;"}'</code>.</p>
+    {% endif %}
+  </section>
+</main>
+<script>
+const form = document.getElementById('scanForm');
+const msg = document.getElementById('scanMsg');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const path = document.getElementById('scanPath').value.trim();
+  msg.textContent = 'Escaneando...';
+  msg.className = 'running';
+  try {
+    const res = await fetch('/api/scan', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({path}),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || data.error || 'Error');
+    msg.textContent = 'Scan ' + data.id + ' listo | score: ' + (data.result ? data.result.score : '-');
+    msg.className = 'ok';
+    setTimeout(() => location.reload(), 800);
+  } catch (err) {
+    msg.textContent = 'Error: ' + err.message;
+    msg.className = 'error';
+  }
+});
+</script>
+</body>
+</html>

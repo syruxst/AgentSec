@@ -1,0 +1,7 @@
+crew: clean
+requirements:
+  - { name: crewai, version: "0.50.0" }
+tasks:
+  - name: t
+    loader: TextLoader
+    sanitize: true

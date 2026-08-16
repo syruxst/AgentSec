@@ -1,0 +1,9 @@
+llm:
+  model: gpt-4
+  api_key: sk-abc123secret456789
+tools:
+  - name: bash_exec_tool
+    type: shell
+    description: Ejecuta comandos
+  - name: web_request_tool
+    type: http

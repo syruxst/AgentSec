@@ -1,0 +1,37 @@
+# Manifiesto ground-truth del corpus de validacion.
+# Cada entrada: ruta relativa -> reglas esperadas (reglas que DEBERIAN dispararse).
+# Usado por tests/test_corpus.py para calcular precision/recall/F1 por regla y
+# clasificacion binaria vulnerable/limpio por archivo.
+vulnerable:
+  langchain/chain_vuln_shell.yaml: [AS-101, AS-104, AS-105]
+  langchain/chain_vuln_loadall.json: [AS-102, AS-108]
+  langchain/chain_vuln_filesystem.yaml: [AS-103]
+  langchain/chain_vuln_secret_mem.yaml: [AS-104, AS-107]
+  langchain/chain_vuln_dep.json: [AS-108]
+  langchain/chain_vuln_get_all.json: [AS-102]
+  langchain/chain_vuln_egress_email.yaml: [AS-105]
+  langchain/chain_vuln_url_loader.yaml: [AS-106]
+  langchain/chain_vuln_mem_shared.yaml: [AS-107]
+  langchain/chain_vuln_sql_tool.yaml: [AS-105]
+  crewai/crew_vuln_shell_secret.yml: [AS-101, AS-103, AS-104]
+  crewai/crew_vuln_delegation.yaml: [AS-110]
+  crewai/crew_vuln_loader.yaml: [AS-106]
+  crewai/crew_vuln_scope.yaml: [AS-109]
+  crewai/crew_vuln_dep_loader.yaml: [AS-106, AS-108]
+  crewai/crew_vuln_loadall.toml: [AS-102]
+  crewai/crew_vuln_partial_scope.yaml: [AS-109]
+  crewai/crew_vuln_plugin_dep.yaml: [AS-108]
+  crewai/crew_vuln_requests_tool.yaml: [AS-105]
+clean:
+  langchain/chain_clean_min.yaml: []
+  langchain/chain_clean_file_limit.yaml: []
+  langchain/chain_clean_sanitized.json: []
+  langchain/chain_clean_sandbox_shell.yaml: []
+  langchain/chain_clean_memory_scoped.yaml: []
+  langchain/chain_clean_url_sanitized.yaml: []
+  crewai/crew_clean_scoped.yaml: []
+  crewai/crew_clean_loader.yaml: []
+  crewai/crew_clean_tool.yaml: []
+  crewai/crew_clean_dep_pinned.yaml: []
+  crewai/crew_clean_partial_positives.yaml: []
+  crewai/crew_clean_plugin_pinned.yaml: []

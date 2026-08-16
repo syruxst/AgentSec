@@ -1,0 +1,8 @@
+crew: reporting
+requirements:
+  - my-tool-plugin
+agents:
+  - name: analyst
+    tools:
+      - name: chart_renderer
+        source: plugin

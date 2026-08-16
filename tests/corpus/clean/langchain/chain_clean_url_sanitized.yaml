@@ -1,0 +1,9 @@
+retriever:
+  type: webbase
+  url: https://wiki.example.com
+  sanitize: true
+  label_data: untrusted
+tools:
+  - name: fetch_page
+    allowed_hosts: [wiki.example.com]
+    scopes: [read:public]

@@ -1,0 +1,24 @@
+# Ejemplo LIMPIO: minimo privilegio, secretos por entorno, sanitizacion, allowlists.
+crew: support_crew
+agents:
+  - name: triage_agent
+    role: Clasifica tickets de soporte
+    tools:
+      - name: getAllowedHostsFetcher
+        description: GET a hosts de allowlist
+        allowed_hosts:
+          - support.company.internal
+        scopes:
+          - read:tickets
+        permissions: [read]
+    allow_delegation: false
+    trust_origin: true
+    llm:
+      model: gpt-4o-mini
+      api_key: ${OPENAI_API_KEY}
+tasks:
+  - name: classify
+    input_file: ./data/uploads/ticket.txt
+    loader: TextLoader
+    sanitize: true
+    label_data: untrusted

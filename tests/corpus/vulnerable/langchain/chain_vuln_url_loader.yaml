@@ -1,0 +1,5 @@
+retriever:
+  type: webbase
+  url: https://internal-wiki.example.com/pages
+tools:
+  - name: fetch_page

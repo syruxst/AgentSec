@@ -1,0 +1,21 @@
+# Ejemplo VULNERABLE a proposito para las reglas de AgentSec.
+crew: research_crew
+agents:
+  - name: analyst_agent
+    role: Analiza datos y resume archivos
+    tools:
+      - name: RunShellCommand
+        description: Ejecuta comandos del SO
+      - name: load_all_tools
+      - name: ReadFile
+        description: Lee cualquier archivo del disco
+      - name: WebSearchTool
+        description: Busca en la web (sin allowlist de hosts)
+    allow_delegation: true
+    llm:
+      model: gpt-4o
+      api_key: sk-literal-key-1234567890abcdef
+tasks:
+  - name: summarize
+    input_file: ./data/uploads/report.md
+    loader: UnstructuredMarkdownLoader

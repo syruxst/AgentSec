@@ -1,0 +1,5 @@
+{
+  "model": "gpt-4",
+  "retriever": { "type": "vectorstore", "sanitize": true, "label_data": "untrusted" },
+  "dependencies": [{ "name": "langchain", "version": "0.3.0" }]
+}

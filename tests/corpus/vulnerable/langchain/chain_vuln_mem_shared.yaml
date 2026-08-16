@@ -1,0 +1,5 @@
+memory:
+  type: buffer
+  scope: shared
+llm:
+  model: gpt-4o-mini

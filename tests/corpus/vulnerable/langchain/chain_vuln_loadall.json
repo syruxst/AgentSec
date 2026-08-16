@@ -1,0 +1,8 @@
+{
+  "model": "gpt-4o",
+  "chain": "react",
+  "tools": [
+    { "name": "load_all_tools" },
+    { "name": "user_profiles_fetcher", "source": "marketplace_skills" }
+  ]
+}

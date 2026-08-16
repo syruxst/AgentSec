@@ -1,0 +1,6 @@
+crew: scraper
+agents:
+  - name: fetcher
+    tools:
+      - name: requests_client
+        description: Cliente HTTP sin restriccion de destinos

@@ -1,0 +1,11 @@
+crew: reporting_clean
+requirements:
+  - { name: my-tool-plugin, version: "1.4.0" }
+agents:
+  - name: analyst
+    environment: staging
+    tools:
+      - name: chart_renderer
+        source: plugin
+        version: "1.4.0"
+        scopes: [read:public]

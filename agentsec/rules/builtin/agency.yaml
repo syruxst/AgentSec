@@ -1,0 +1,128 @@
+# Reglas de exceso de agencia (excessive agency) y herramientas peligrosas.
+- id: AS-101
+  name: Ejecucion de comandos del sistema sin restriccion
+  description: La configuracion expone una herramienta capaz de ejecutar comandos del
+    sistema (shell, exec, subprocess) sin validacion de entrada ni sandbox. Un atacante
+    via inyeccion indirecta puede ejecutar comandos arbitrarios.
+  severity: critical
+  cwe: CWE-78
+  owasp_llm: LLM02
+  remediation: Eliminar las herramientas de ejecucion o envolverlas con lista blanca
+    estricta de comandos, validacion de argumentos y no delegar decisiones del modelo
+    sobre el comando a ejecutar.
+  references:
+    - https://snyk.io/agentic-sec/malicious-agent-skills/
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: name, op: regex, value: "(?i)shell|exec|subprocess|bash|os\\.system", flags: i }
+        - { field: sandbox, op: not_exists }
+        - { field: allowed_commands, op: not_exists }
+      evidence: "Herramienta ejecutable detectada: {name}"
+
+- id: AS-102
+  name: Carga amplia de herramientas
+  description: Se cargan todas las herramientas disponibles (load_all_tools, import_all_tools)
+    u otra forma de agrupacion masiva. Esto amplia la superficie de ataque y viola el
+    principio de minimo privilegio.
+  severity: high
+  cwe: CWE-285
+  owasp_llm: LLM02
+  remediation: Cargar unicamente las herramientas necesarias para la tarea y aplicar
+    allowlist explicita por agente.
+  references:
+    - https://python.langchain.com/docs/integrations/tools
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: name, op: regex, value: "(?i)load_all_tools|import_all_tools|get_all_tools", flags: i }
+      evidence: "Carga amplia detectada: {name}"
+    - scope: data
+      conditions:
+        - { field: load_all_tools, op: exists }
+      evidence: "load_all_tools presente en la raiz"
+
+- id: AS-103
+  name: Acceso a filesystem sin allowlist
+  description: Herramienta de lectura/escritura de archivos sin restriccion de rutas
+    permitidas. Puede filtrar archivos sensibles o ser abusada para persistencia.
+  severity: medium
+  cwe: CWE-22
+  owasp_llm: LLM04
+  remediation: Restringir a un directorio de trabajo (allowlist) y validar rutas antes
+    de cualquier operacion.
+  references:
+    - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: name, op: regex, value: "(?i)read_file|write_file|file_|filesystem|directory", flags: i }
+        - { field: allowed_paths, op: not_exists }
+        - { field: restrict_to_dirs, op: not_exists }
+      evidence: "Herramienta de filesystem sin allowlist: {name}"
+
+- id: AS-105
+  name: Herramienta de egress sin control de alcance
+  description: Herramienta HTTP/red/correo/base de datos capaz de escribir hacia el
+    exterior sin limite de destinos. Permite exfiltracion de datos sensibles procesados
+    por el agente.
+  severity: medium
+  cwe: CWE-779
+  owasp_llm: LLM05
+  remediation: Definir allowlist de destinos alcanzables, monitorear salidas y aplicar
+    controles de exfiltracion (mascarado de datos).
+  references:
+    - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: name, op: regex, value: "(?i)http|requests|request|email|send_email|sql", flags: i }
+        - { field: allowed_hosts, op: not_exists }
+      evidence: "Herramienta de egress sin allowlist: {name}"
+
+- id: AS-109
+  name: Credencial sobre-scoped o sin revision
+  description: Credencial asociada a una herramienta sin ambito efectivo documentado
+    ni revision. El agente puede heredar permisos mayores a los necesarios.
+  severity: high
+  cwe: CWE-250
+  owasp_llm: LLM09
+  remediation: Aplicar minimo privilegio, documentar el ambito efectivo de cada
+    credencial y requerir revision de otorgamiento.
+  references:
+    - https://cwe.mitre.org/data/definitions/250.html
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: environment, op: regex, value: "(?i)prod|production", flags: i }
+        - { field: scopes, op: not_exists }
+      evidence: "Herramienta en produccion sin scopes: {name}"
+    - scope: tools
+      conditions:
+        - { field: environment, op: regex, value: "(?i)prod|production", flags: i }
+        - { field: permissions, op: not_exists }
+      evidence: "Herramienta en produccion sin declaracion de permisos: {name}"
+
+- id: AS-110
+  name: Delegacion agente-a-agente sin validacion de origen
+  description: El agente puede delegar o invocar otros agentes/perfiles sin validar el
+    origen del llamado, ampliando la superficie de abuso (propagacion entre agentes).
+  severity: medium
+  cwe: CWE-352
+  owasp_llm: LLM02
+  remediation: Validar identidad y contexto de origen de cada delegacion y aplicar
+    politicas de confianza entre agentes.
+  references:
+    - https://www.truefoundry.com/blog/enterprise-ai-agent-security-solutions
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: agents
+      conditions:
+        - { field: allow_delegation, op: regex, value: "(?i)true|yes|1", flags: i }
+        - { field: trust_origin, op: not_exists }
+      evidence: "Delegacion permitida sin validacion de origen"

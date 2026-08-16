@@ -1,0 +1,6 @@
+crew: docs_clean
+tasks:
+  - name: summarize
+    loader: TextLoader
+    sanitize: true
+    label_data: untrusted

@@ -1,0 +1,12 @@
+crew: support_clean
+agents:
+  - name: triage
+    allow_delegation: false
+    trust_origin: true
+    tools:
+      - name: ticket_lookup
+        scopes: [read:tickets]
+        permissions: [read]
+        allowed_hosts: [tickets.internal]
+    llm:
+      api_key: ${OPENAI_API_KEY}

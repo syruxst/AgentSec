@@ -1,0 +1,155 @@
+# Reglas de seguridad para asistentes de código agénticos (opencode, Claude Code).
+#
+# Esta categoría cubre configs de asistentes que combinan LLM + herramientas
+# locales: permisos de ejecución, servidores MCP y skills/plugins.
+- id: AS-201
+  name: Permiso de ejecucion de comandos locales (bash/shell)
+  description: El asistente tiene permiso de ejecutar comandos del sistema
+    (bash, shell, exec) sin restriccion. Un documento o skill envenenado puede
+    forzar ejecucion arbitraria local a traves del LLM.
+  severity: critical
+  cwe: CWE-78
+  owasp_llm: LLM02
+  remediation: Usar reglas de permiso con lista blanca por comando, negar por
+    defecto y requerir confirmacion interactiva para bash/exec.
+  references:
+    - https://snyk.io/agentic-sec/code-generator-prompt-injection-tool-exfiltration/
+  frameworks: [assistant]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: name, op: regex, value: "(?i)^(bash|shell|exec|zsh|powershell|cmd)(:\\*)?$", flags: i }
+        - { field: grant, op: in, value: [allow, null] }
+      evidence: "Permiso de ejecucion local: {name} ({grant})"
+    - scope: tools
+      conditions:
+        - { field: kind, op: eq, value: toggle }
+        - { field: name, op: regex, value: "(?i)bash|shell|exec", flags: i }
+        - { field: enabled, op: regex, value: "(?i)true|1|yes", flags: i }
+      evidence: "Toggle de ejecucion local habilitado: {name}"
+
+- id: AS-202
+  name: Capacidad amplia de escritura/edicion sin allowlist
+  description: Permisos amplios de escritura, edicion o aplicacion de patches
+    habilitados globalmente. Amplia la superficie si el contexto del prompt es
+    envenenado (indirecto).
+  severity: high
+  cwe: CWE-285
+  owasp_llm: LLM02
+  remediation: Restringir edicion a directorios del proyecto, requerir confirmacion
+    por archivo y denegar escritura fuera del workspace.
+  references:
+    - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  frameworks: [assistant]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: name, op: regex, value: "(?i)^(edit|write|create|patch)(:\\*)?$", flags: i }
+        - { field: grant, op: in, value: [allow, null] }
+      evidence: "Permiso amplio de escritura: {name}"
+
+- id: AS-203
+  name: MCP server remoto sin validacion de origen
+  description: Se configura un servidor MCP accesible por URL (remoto) y el
+    plugin que lo declara esta habilitado. El asistente enviara contexto de
+    conversacion a ese endpoint; un endpoint malicioso o comprometido puede
+    inducir exfiltracion o reinyectar instrucciones.
+  severity: high
+  cwe: CWE-918
+  owasp_llm: LLM05
+  remediation: Validar el origen del URL (allowlist de dominios), usar
+    autenticacion y no conectar MCP remotos de terceros sin revision.
+  references:
+    - https://www.landing.ai/blog/security-sandbox-boosted-productivity-mcp/
+  frameworks: [assistant]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: kind, op: eq, value: mcp }
+        - { field: enabled, op: regex, value: "(?i)true|1|yes", flags: i }
+        - { field: url, op: exists }
+        - { field: verified, op: not_exists }
+      evidence: "MCP remoto: {name} -> {url}"
+
+- id: AS-204
+  name: MCP server local con credenciales embebidas
+  description: Un servidor MCP local porta claves/tokens en su config (env).
+    Si el asistente es inducido a exfiltrar, las credenciales quedan disponibles.
+  severity: medium
+  cwe: CWE-798
+  owasp_llm: LLM09
+  remediation: Mover credenciales a variables de entorno del sistema o gestor
+    de secretos; nunca incrustarlas en la config de MCP.
+  references:
+    - https://cwe.mitre.org/data/definitions/798.html
+  frameworks: [assistant]
+  checks:
+    - scope: tools
+      conditions:
+        - { field: kind, op: eq, value: mcp }
+        - { field: enabled, op: regex, value: "(?i)true|1|yes", flags: i }
+        - { field: env, op: regex, value: "(?i)(api[_-]?key|secret|password|token)=(?!\\s*(env:|\\$\\{|process\\.env))", flags: i }
+      evidence: "MCP local con env sensible: {name} env={env}"
+
+- id: AS-205
+  name: Plugin/skill externo sin verificacion de version
+  description: El asistente habilita plugins o skills cuya identidad/version no
+    esta fijada. Un plugin envenenado en el registro publico puede secuestrar
+    instrucciones del agente.
+  severity: medium
+  cwe: CWE-1104
+  owasp_llm: LLM07
+  remediation: Fijar versiones exactas, verificar el origen del paquete y auditar
+    el codigo del plugin antes de habilitarlo.
+  references:
+    - https://snyk.io/agentic-sec/malicious-agent-skills/
+  frameworks: [assistant]
+  checks:
+    - scope: sources
+      conditions:
+        - { field: enabled, op: regex, value: "(?i)true|1|yes", flags: i }
+        - { field: version, op: not_exists }
+      evidence: "Skill/plugin habilitado sin version: {name}"
+    - scope: sources
+      conditions:
+        - { field: enabled, op: eq, value: true }
+        - { field: version, op: not_exists }
+      evidence: "Skill/plugin habilitado sin version: {name}"
+
+- id: AS-206
+  name: Secreto hardcodeado en config del asistente
+  description: Se detecta una clave (API key, token, password) literal en la
+    configuracion del asistente. Queda expuesta en repositorio y puede ser
+    exfiltrada por el asistente.
+  severity: critical
+  cwe: CWE-798
+  owasp_llm: LLM09
+  remediation: Usar variables de entorno o gestor de secretos; rotar la
+    credencial comprometida.
+  references:
+    - https://cwe.mitre.org/data/definitions/798.html
+  frameworks: [assistant]
+  checks:
+    - scope: credentials
+      conditions:
+        - { field: key, op: regex, value: "(?i)api[_-]?key|secret|password|token", flags: i }
+        - { field: value_preview, op: not_regex, value: "(?i)\\$\\{|env\\(|env:|ref:|secret:|process\\.env", flags: i }
+      evidence: "Credencial posiblemente literal: {key} = {value_preview}"
+
+- id: AS-207
+  name: Delegacion agente-a-agente sin validacion de origen
+  description: El asistente puede delegar o invocar otros agentes/perfiles sin
+    validar el origen, permitiendo propagacion de instrucciones maliciosas.
+  severity: low
+  cwe: CWE-352
+  owasp_llm: LLM02
+  remediation: Validar identidad y contexto de origen en cada delegacion.
+  references:
+    - https://www.truefoundry.com/blog/enterprise-ai-agent-security-solutions
+  frameworks: [assistant]
+  checks:
+    - scope: agents
+      conditions:
+        - { field: allow_delegation, op: regex, value: "(?i)true|1|yes", flags: i }
+        - { field: trust_origin, op: not_exists }
+      evidence: "Delegacion permitida sin validacion de origen"

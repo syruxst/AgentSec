@@ -1,0 +1,10 @@
+memory:
+  type: buffer
+  scope: per-user
+retriever:
+  type: vectorstore
+  sanitize: true
+  label_data: untrusted
+llm:
+  model: gpt-4o-mini
+  api_key: ${OPENAI_API_KEY}

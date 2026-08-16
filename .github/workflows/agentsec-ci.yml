@@ -1,0 +1,27 @@
+name: agentsec-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  agentsec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/agentsec
+        with:
+          path: examples/vulnerable
+          threshold: '60'
+          format: sarif
+          report_path: agentsec.sarif
+
+      - name: 'Subir reporte SARIF'
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentsec-report
+          path: agentsec.sarif
+          retention-days: 30

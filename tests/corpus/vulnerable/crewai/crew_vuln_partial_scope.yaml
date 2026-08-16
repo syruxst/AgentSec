@@ -1,0 +1,8 @@
+crew: finops
+agents:
+  - name: biller
+    environment: production
+    tools:
+      - name: invoice_api
+        scopes: [read:invoices]
+        description: API de facturacion

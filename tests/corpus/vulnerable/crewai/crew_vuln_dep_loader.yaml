@@ -1,0 +1,7 @@
+crew: web
+requirements:
+  - crewai-tools
+tasks:
+  - name: scrape
+    loader: HTMLLoader
+    url: https://example.com/reports

@@ -1,0 +1,5 @@
+crew: docs
+tasks:
+  - name: summarize
+    loader: UnstructuredMarkdownLoader
+    input_file: ./uploads/doc.md

@@ -1,0 +1,6 @@
+tools:
+  - name: read_file_handler
+    allowed_paths: ["/srv/docs"]
+    restrict_to_dirs: ["/srv/docs"]
+llm:
+  model: local

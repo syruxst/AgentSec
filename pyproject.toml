@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentsec"
+version = "0.1.0"
+description = "Auditor shift-left de seguridad para agentes de IA (LangChain y CrewAI)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Proyecto de Titulo" }]
+dependencies = [
+    "PyYAML>=6.0",
+    "typer>=0.12",
+    "pydantic>=2.7",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "jinja2>=3.1",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+agentsec = "agentsec.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["agentsec*", "app*"]
+
+[tool.setuptools.package-data]
+"agentsec.rules" = ["builtin/*.yaml"]
+"agentsec.payloads" = ["builtin/*.yaml"]
+"app" = ["templates/*.html", "static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"agentsec/reporter.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+exclude = [".venv"]

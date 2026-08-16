@@ -1,0 +1,87 @@
+# Reglas de inyeccion indirecta, secretos y cadena de suministro.
+- id: AS-104
+  name: Secreto hardcodeado en configuracion
+  description: Se detecta una API key, token, password o secreto incrustado directamente
+    en el archivo de configuracion del agente. Queda expuesta en el repositorio y en
+    cualquier artefacto de CI/CD.
+  severity: critical
+  cwe: CWE-798
+  owasp_llm: LLM09
+  remediation: Mover el secreto a un gestor de secretos o variables de entorno y rotar
+    la credencial comprometida. Nunca versionar secretos.
+  references:
+    - https://cwe.mitre.org/data/definitions/798.html
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: credentials
+      conditions:
+        - { field: key, op: regex, value: "(?i)api[_-]?key|secret|password|token|apikey", flags: i }
+        - { field: value_preview, op: not_regex, value: "(?i)\\$\\{|env\\(|secret_ref|ref:|secret:", flags: i }
+      evidence: "Credencial posiblemente literal: {key} = {value_preview}"
+
+- id: AS-106
+  name: Fuente de datos sin sanitizacion
+  description: El agente consume documentos, HTML/markdown, hojas de calculo o respuestas
+    de red sin capa de sanitizacion. Un documento envenenado puede ejecutar una inyeccion
+    de prompt indirecta.
+  severity: high
+  cwe: CWE-1336
+  owasp_llm: LLM01
+  remediation: Sanitizar/etiquetar contenido externo, tratarlo como datos no confiables
+    y separarlo del contexto de instrucciones. Considerar sandbox de parsing.
+  references:
+    - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: sources
+      conditions:
+        - { field: loader, op: exists }
+        - { field: sanitize, op: not_exists }
+        - { field: label_data, op: not_exists }
+      evidence: "Loader de datos sin sanitizacion: {loader}"
+    - scope: sources
+      conditions:
+        - { field: url, op: exists }
+        - { field: sanitize, op: not_exists }
+      evidence: "Fuente URL sin sanitizacion: {url}"
+
+- id: AS-107
+  name: Memoria compartida sin scoping por agente
+  description: La memoria/embeddings del agente no esta aislada por entidad o tiene
+    alcance global. Permite envenenamiento de memoria entre sesiones o usuarios.
+  severity: low
+  cwe: CWE-276
+  owasp_llm: LLM01
+  remediation: Particionar almacenes de memoria por usuario/sesion y tratar contenido
+    persistido como no confiable al reinyectarlo.
+  references:
+    - https://cwe.mitre.org/data/definitions/276.html
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: memory
+      conditions:
+        - { field: scope, op: regex, value: "(?i)global|shared|none", flags: i }
+      evidence: "Memoria con scoping debil: {type or kind}"
+
+- id: AS-108
+  name: Dependencia o plugin no verificado
+  description: Herramienta/plugin/dependencia sin version fijada ni verificacion de
+    origen. Agentes usan skills/plugins que pueden estar envenenados en el registro publico.
+  severity: medium
+  cwe: CWE-1104
+  owasp_llm: LLM07
+  remediation: Fijar versiones, verificar hash/origen del paquete y auditar el reino
+    de skills/tools antes de permitir su uso.
+  references:
+    - https://snyk.io/agentic-sec/malicious-agent-skills/
+  frameworks: [langchain, crewai]
+  checks:
+    - scope: dependencies
+      conditions:
+        - { field: version, op: not_exists }
+      evidence: "Dependencia sin version fijada: {name}"
+    - scope: tools
+      conditions:
+        - { field: version, op: not_exists }
+        - { field: source, op: regex, value: "(?i)marketplace|plugin|skill", flags: i }
+      evidence: "Plugin/skill sin version: {name}"

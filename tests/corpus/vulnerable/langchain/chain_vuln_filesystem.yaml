@@ -1,0 +1,7 @@
+tools:
+  - name: read_file_handler
+    description: Lee archivos
+  - name: write_file_handler
+    description: Escribe en disco
+llm:
+  model: gemini-1.5

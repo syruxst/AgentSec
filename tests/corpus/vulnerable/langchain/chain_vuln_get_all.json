@@ -1,0 +1,4 @@
+{
+  "model": "gpt-4",
+  "tools": [{ "name": "get_all_tools_catalog" }]
+}

@@ -1,0 +1,7 @@
+crew: finance
+agents:
+  - name: analyst
+    environment: production
+    tools:
+      - name: ledger_api
+        description: API de contabilidad
