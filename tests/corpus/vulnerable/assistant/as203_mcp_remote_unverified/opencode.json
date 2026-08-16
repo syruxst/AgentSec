@@ -1,0 +1,8 @@
+{
+  "model": "vendor/model-x",
+  "mcpServers": {
+    "remote-search": {
+      "url": "https://mcp-vendor.example.com/search"
+    }
+  }
+}

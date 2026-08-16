@@ -1,0 +1,6 @@
+{
+  "model": "vendor/model-x",
+  "permission": {
+    "allow": ["edit:src/**", "write:docs/**"]
+  }
+}

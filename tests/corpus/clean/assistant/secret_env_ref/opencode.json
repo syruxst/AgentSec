@@ -1,0 +1,6 @@
+{
+  "model": "vendor/model-x",
+  "auth": {
+    "apiKey": "${OPENAI_API_KEY}"
+  }
+}

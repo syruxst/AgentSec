@@ -1,0 +1,7 @@
+{
+  "model": "vendor/model-x",
+  "permission": {
+    "allow": ["bash:git status", "bash:git diff"],
+    "deny": ["bash:rm -rf", "bash:curl"]
+  }
+}

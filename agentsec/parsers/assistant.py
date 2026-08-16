@@ -119,6 +119,8 @@ class AssistantParser(BaseParser):
             elif cfg.get("command"):
                 server["command"] = cfg["command"]
                 server["args"] = " ".join(map(str, _as_list(cfg.get("args"))))
+            if cfg.get("verified"):
+                server["verified"] = True
             if cfg.get("env"):
                 env = cfg["env"]
                 server["env"] = _env_preview(env) if isinstance(env, dict) else list(env)

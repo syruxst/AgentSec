@@ -124,6 +124,7 @@ Se configura un servidor MCP accesible por URL (remoto), el plugin que lo declar
 **habilitado**, y no tiene `verified`. El asistente enviará contexto de conversación a
 ese endpoint; uno malicioso o comprometido puede inducir exfiltración o reinyectar
 instrucciones.
+**Mitigación válida:** declarar `"verified": true` en la entrada del servidor MCP.
 **Nota sobre falsos positivos:** los `.mcp.json` del catálogo de marketplace se marcan
 `enabled: false` salvo que el plugin figure en `enabledPlugins` (`settings.json`) o
 `installed_plugins.json`; esta regla solo opera sobre MCP habilitados.

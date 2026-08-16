@@ -13,8 +13,23 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   AS-201..AS-207).
 - Metadatos de `pyproject.toml`: `classifiers`, `keywords`, `[project.urls]`.
 - `.gitattributes` y `.editorconfig` para normalizar finales de línea entre editores/SO.
+- **Corpus de validación para el dominio `assistant`**: 16 casos nuevos
+  (`tests/corpus/{vulnerable,clean}/assistant/`) que cubren AS-201..AS-207, antes sin
+  ninguna cobertura de ground-truth. El corpus total pasa de 31 a 47 configs.
+- Caso adversarial de MCP de catálogo no habilitado, que verifica de punta a punta
+  (no solo con mocks unitarios) que AS-203/AS-204 se suprimen correctamente mientras
+  AS-206 se sigue detectando.
+- `tests/test_corpus_validation.py`: aplica el corpus de validación como gate de
+  pytest/CI (antes `tests/corpus_validation.py` era un script manual que nadie corría
+  automáticamente).
+- Sección "Limitaciones metodológicas conocidas" en `docs/arquitectura.md`.
 
 ### Fixed
+- **`agentsec/parsers/assistant.py`**: el campo `verified` de un servidor MCP remoto
+  nunca se propagaba al `Distribution`, por lo que la mitigación documentada de AS-203
+  (`"verified": true`) no tenía ningún efecto — la regla siempre se disparaba para
+  cualquier MCP con `url`. Encontrado al construir el corpus de ground-truth para
+  AS-201..AS-207.
 - Error de tipos en `agentsec/parsers/base.py` (`detect_framework`) reportado por mypy.
 - Advertencias de `ruff` por falta de newline final en `demo/demo_agent.py` y
   `scripts/capturar_panel.py`.

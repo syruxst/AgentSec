@@ -1,0 +1,10 @@
+{
+  "model": "vendor/model-x",
+  "mcpServers": {
+    "local-tool": {
+      "command": "npx",
+      "args": ["-y", "@vendor/mcp-local"],
+      "env": { "OPENAI_API_KEY": "sk-live-abcdefghijklmnop" }
+    }
+  }
+}

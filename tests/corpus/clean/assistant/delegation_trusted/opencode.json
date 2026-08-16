@@ -1,0 +1,6 @@
+{
+  "model": "vendor/model-x",
+  "agents": [
+    { "name": "delegate-to-reviewer", "allow_delegation": true, "trust_origin": "internal-ca" }
+  ]
+}

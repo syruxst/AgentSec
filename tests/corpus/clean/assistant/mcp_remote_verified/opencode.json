@@ -1,0 +1,9 @@
+{
+  "model": "vendor/model-x",
+  "mcpServers": {
+    "docs-search": {
+      "url": "https://mcp.trusted-vendor.com/docs",
+      "verified": true
+    }
+  }
+}

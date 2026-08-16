@@ -109,11 +109,31 @@ llama a ninguna API de LLM; solo requiere el endpoint del agente.
 
 ## 8. Validacion (tesis)
 
-- Corpus de **31 configs** (`tests/corpus/`) etiquetado como ground-truth:
-  19 vulnerables + 12 limpias, incluyendo casos borde disenados para evitar
-  falsos positivos triviales (sandbox, allowlists, permisos declarados).
+- Corpus de **47 configs** (`tests/corpus/`) etiquetado como ground-truth:
+  27 vulnerables + 20 limpias, cubriendo las **17 reglas** (AS-101..AS-110 sobre
+  LangChain/CrewAI, AS-201..AS-207 sobre asistentes), incluyendo casos borde
+  disenados para evitar falsos positivos triviales (sandbox, allowlists, permisos
+  declarados, MCP de catalogo no habilitado).
 - Metricas por regla y clasificacion binaria por archivo en
-  `tests/corpus_validation.py`.
+  `tests/corpus_validation.py`; **aplicadas como gate de CI** en
+  `tests/test_corpus_validation.py` (falla si la exactitud binaria cae bajo 0.95
+  o si alguna regla queda sin caso de ground-truth).
+- Caso adversarial dedicado (`tests/corpus/*/assistant/mcp_marketplace_disabled*`):
+  un MCP remoto con secreto embebido dentro de un plugin de marketplace **no
+  habilitado** prueba, de punta a punta (no solo con mocks unitarios), que
+  AS-203/AS-204 se suprimen correctamente por el estado del plugin mientras que
+  AS-206 (secreto hardcodeado) se sigue detectando — son preocupaciones
+  independientes por diseno.
 - Demo end-to-end: `demo/demo_agent.py` es un agente vulnerable; `agentsec scan`
   detecta el exceso de agencia en su config y `agentsec probe` detona los 8
   payloads de inyeccion.
+
+### Limitaciones metodologicas conocidas
+
+- El corpus es **autoria del mismo equipo que escribio las reglas** (no es un
+  corpus independiente ni ciego). La precision/recall de 1.0 obtenida demuestra
+  que el motor implementa correctamente la especificacion de cada regla, no que
+  las reglas generalicen a configuraciones reales no vistas.
+- Trabajo futuro natural: validar contra un corpus externo (proyectos publicos
+  de LangChain/CrewAI/opencode reales, etiquetados por un tercero) para medir
+  generalizacion y tasa de falsos positivos "en el mundo real".

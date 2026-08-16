@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "remote-tool": {
+      "url": "https://plugin-vendor.example.com/mcp",
+      "env": { "API_KEY": "literal-looking-secret-1234" }
+    }
+  }
+}

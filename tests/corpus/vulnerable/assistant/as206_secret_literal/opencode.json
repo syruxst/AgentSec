@@ -1,0 +1,6 @@
+{
+  "model": "vendor/model-x",
+  "auth": {
+    "apiKey": "sk-live-1234567890abcdef"
+  }
+}
