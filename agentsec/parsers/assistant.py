@@ -48,8 +48,10 @@ class AssistantParser(BaseParser):
         if name == CLAUDE_SETTINGS and any(seg in rel for seg in ASSISTANT_DIRS):
             return True
         return name in {"settings.json", "config.json"} and (
-            "/.claude/" in rel or rel.startswith(".claude/")
-            or "/opencode/" in rel or rel.startswith("opencode/")
+            "/.claude/" in rel
+            or rel.startswith(".claude/")
+            or "/opencode/" in rel
+            or rel.startswith("opencode/")
         )
 
     def parse(self, path: Path) -> Distribution | None:
@@ -174,9 +176,9 @@ class AssistantParser(BaseParser):
     @staticmethod
     def _collect_dependencies(data: dict[str, Any]) -> list[dict[str, Any]]:
         deps: list[dict[str, Any]] = []
-        for mcp in data.get("mcpServers", {}).values() if isinstance(
-            data.get("mcpServers"), dict
-        ) else []:
+        for mcp in (
+            data.get("mcpServers", {}).values() if isinstance(data.get("mcpServers"), dict) else []
+        ):
             if isinstance(mcp, dict):
                 command = mcp.get("command")
                 args = " ".join(map(str, _as_list(mcp.get("args"))))
@@ -280,4 +282,3 @@ def _flatten(node: Any, prefix: str = "") -> dict[str, Any]:
         for i, child in enumerate(node):
             out.update(_flatten(child, f"{prefix}[{i}]"))
     return out
-

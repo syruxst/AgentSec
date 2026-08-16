@@ -1,5 +1,9 @@
 # AgentSec
 
+[![CI](https://github.com/syruxst/AgentSec/actions/workflows/ci.yml/badge.svg)](https://github.com/syruxst/AgentSec/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+
 Auditor **shift-left** de seguridad para agentes de IA.
 
 Cubre dos dominios:
@@ -32,7 +36,7 @@ agentsec scan ruta/al/proyecto --format sarif
 agentsec probe http://localhost:8000/invoke --suite indirect
 
 # puntaje de postura (0-100) y umbral
-agentsec scan ruta/al/proyecto --json | jq .score
+agentsec scan ruta/al/proyecto --format json | jq .score
 ```
 
 ## Ejemplos listos
@@ -56,6 +60,9 @@ agentsec scan C:\Users\danie\.config\opencode
 
 - `docs/arquitectura.md` — diseño, componentes, reglas y manejo de falsos positivos
 - `docs/uso.md` — manual de uso (CLI, panel web, CI, demo)
+- `docs/reglas.md` — catálogo de referencia de las 17 reglas (severidad, CWE, OWASP LLM)
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — entorno de desarrollo y cómo agregar una regla
+- [`CHANGELOG.md`](CHANGELOG.md) — historial de versiones
 
 ## Estructura
 
@@ -69,16 +76,10 @@ examples/       configs clean/vulnerable para los dos dominios
 .github/        GitHub Action
 ```
 
-## Registro de cambios significativos
+## Changelog
 
-- **Framework `assistant`**: audita `opencode.json(c)`, `.claude/settings.json`,
-  `claude.json`, `mcp.json` (permisos de herramientas, MCP remotos/locales, skills).
-- **Reglas AS-201..AS-207**: bash/shell sin restricción, escritura amplia, MCP remoto
-  sin verificación, credenciales en env de MCP, skills sin versión, secretos literales,
-  delegación sin validación.
-- **Manejo de falsos positivos en MCP**: los `.mcp.json` del catálogo del marketplace
-  solo se consideran activos si su plugin está habilitado (`enabledPlugins`/
-  `installed_plugins.json`); AS-203/AS-204 operan solo sobre MCP habilitados.
-- **Soporte `.jsonc`** y esquema 'bare' de MCP (`"server": {url/command}` en raíz).
-- **Panel web**: formulario "Nuevo escaneo" con campo de ruta + POST a `/api/scan`;
-  arranque con `.venv` del proyecto.
+Ver [`CHANGELOG.md`](CHANGELOG.md) para el historial de versiones.
+
+## Licencia
+
+[MIT](LICENSE)

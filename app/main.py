@@ -36,6 +36,7 @@ class ScanResponse(BaseModel):
 
 @app.post("/api/scan", response_model=ScanResponse)
 def api_scan(req: ScanRequest) -> ScanResponse:
+    """Ejecuta un scan sobre `req.path` y persiste el resultado en SQLite."""
     options = ScanOptions(path=req.path, allow=req.allow, threshold=req.threshold, formats=["json"])
     try:
         result = run_scan(options)
@@ -59,12 +60,14 @@ def api_scan(req: ScanRequest) -> ScanResponse:
 
 @app.get("/api/scans")
 def api_list(limit: int = 50) -> list[dict[str, Any]]:
+    """Lista los scans mas recientes, mas nuevo primero."""
     with dbmod.db() as conn:
         return dbmod.list_scans(conn, limit=limit)
 
 
 @app.get("/api/scans/{scan_id}")
 def api_detail(scan_id: int) -> dict[str, Any]:
+    """Devuelve un scan guardado por id."""
     with dbmod.db() as conn:
         record = dbmod.get_scan(conn, scan_id)
     if not record:
@@ -74,6 +77,7 @@ def api_detail(scan_id: int) -> dict[str, Any]:
 
 @app.get("/api/reports/{scan_id}")
 def api_report(scan_id: int, fmt: str = "json") -> dict[str, Any]:
+    """Devuelve metadatos de reporte de un scan y los formatos disponibles."""
     with dbmod.db() as conn:
         record = dbmod.get_scan(conn, scan_id)
     if not record:
@@ -83,12 +87,14 @@ def api_report(scan_id: int, fmt: str = "json") -> dict[str, Any]:
 
 @app.get("/api/stats")
 def api_stats() -> dict[str, Any]:
+    """Estadisticas agregadas de todos los scans guardados."""
     with dbmod.db() as conn:
         return dbmod.stats(conn)
 
 
 @app.get("/api/rules")
 def api_rules() -> list[dict[str, Any]]:
+    """Catalogo de reglas activas del motor (id, severidad, CWE, OWASP LLM)."""
     from agentsec.rules import load_rules
 
     return [
@@ -109,6 +115,7 @@ def api_rules() -> list[dict[str, Any]]:
 
 @app.get("/", response_class=HTMLResponse)
 def dashboard(request: Request) -> HTMLResponse:
+    """Panel principal: historial de scans, estadisticas y formulario de scan."""
     with dbmod.db() as conn:
         scans = dbmod.list_scans(conn)
         stats = dbmod.stats(conn)
@@ -121,6 +128,7 @@ def dashboard(request: Request) -> HTMLResponse:
 
 @app.get("/scan/{scan_id}", response_class=HTMLResponse)
 def scan_detail(request: Request, scan_id: int) -> HTMLResponse:
+    """Vista de detalle de un scan: hallazgos y reporte HTML embebido."""
     with dbmod.db() as conn:
         record = dbmod.get_scan(conn, scan_id)
     if not record:
@@ -135,6 +143,7 @@ def scan_detail(request: Request, scan_id: int) -> HTMLResponse:
 
 @app.get("/report/{scan_id}", response_class=HTMLResponse)
 def report_html(scan_id: int) -> HTMLResponse:
+    """Reporte HTML autocontenido de un scan (descargable/compartible)."""
     with dbmod.db() as conn:
         record = dbmod.get_scan(conn, scan_id)
     if not record:

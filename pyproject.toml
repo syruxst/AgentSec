@@ -5,17 +5,45 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agentsec"
 version = "0.1.0"
-description = "Auditor shift-left de seguridad para agentes de IA (LangChain y CrewAI)"
+description = "Auditor shift-left de seguridad para agentes de IA: excesiva agencia e inyeccion de prompt indirecta en LangChain, CrewAI y asistentes de codigo agenticos (opencode, Claude Code)"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Proyecto de Titulo" }]
+authors = [{ name = "Daniel Ugalde" }]
+keywords = [
+    "ai-security",
+    "llm-security",
+    "prompt-injection",
+    "agent-security",
+    "shift-left",
+    "static-analysis",
+    "sast",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "Environment :: Console",
+]
 dependencies = [
     "PyYAML>=6.0",
     "typer>=0.12",
     "pydantic>=2.7",
     "httpx>=0.27",
 ]
+
+[project.urls]
+Homepage = "https://github.com/syruxst/AgentSec"
+Repository = "https://github.com/syruxst/AgentSec"
+Issues = "https://github.com/syruxst/AgentSec/issues"
+Changelog = "https://github.com/syruxst/AgentSec/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 web = [

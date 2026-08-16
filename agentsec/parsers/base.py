@@ -146,20 +146,22 @@ def detect_framework(paths: list[Path]) -> Framework | None:
     for path in paths:
         name = path.name.lower()
         rel = str(path).replace("\\", "/").lower()
-        if (
-            name in {"crews.yaml", "agents.yaml", "tasks.yaml"}
-            or "/crewai/" in rel
-        ):
+        if name in {"crews.yaml", "agents.yaml", "tasks.yaml"} or "/crewai/" in rel:
             scores["crewai"] += 2
-        elif (
-            name in {"chain.yaml", "agent.yaml", "chains", "agents"}
-            or "/langchain/" in rel
-        ):
+        elif name in {"chain.yaml", "agent.yaml", "chains", "agents"} or "/langchain/" in rel:
             scores["langchain"] += 2
         elif (
-            name in {"opencode.json", "opencode.jsonc", "claude.json",
-                     "settings.json", "mcp.json", ".mcp.json"}
-            or "/opencode/" in rel or "/.claude/" in rel
+            name
+            in {
+                "opencode.json",
+                "opencode.jsonc",
+                "claude.json",
+                "settings.json",
+                "mcp.json",
+                ".mcp.json",
+            }
+            or "/opencode/" in rel
+            or "/.claude/" in rel
         ):
             scores["assistant"] += 2
         if "crew" in name:
@@ -167,7 +169,7 @@ def detect_framework(paths: list[Path]) -> Framework | None:
     total = sum(scores.values())
     if total == 0:
         return None
-    return max(scores, key=scores.get)
+    return max(scores, key=lambda fw: scores[fw])
 
 
 def parse_file(path: Path, parser: BaseParser) -> Distribution | None:

@@ -1,3 +1,5 @@
+"""Parsers de configuracion de agentes: LangChain, CrewAI y asistentes de codigo."""
+
 from agentsec.parsers.base import (
     BaseParser,
     ParseError,

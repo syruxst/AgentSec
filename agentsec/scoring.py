@@ -8,7 +8,6 @@ from __future__ import annotations
 from agentsec.models import Finding, Severity
 
 EXPOSURE_FACTOR = 1.0  # agente accesible por red (defecto conservador)
-CATEGORY_BONUS: dict[str, float] = {}
 
 
 def compute_score(findings: list[Finding]) -> float:

@@ -74,6 +74,9 @@ agentsec scan C:\Users\danie\.config\opencode
 - **AS-206** secreto literal en config del asistente (Critical)
 - **AS-207** delegacion agente-a-agente sin validacion de origen
 
+> Catálogo completo (severidad, CWE, OWASP LLM, remediación detallada de cada regla):
+> [`docs/reglas.md`](reglas.md).
+
 > **MCP del catalogo (falsos positivos):** los `.mcp.json` bajo
 > `plugins/marketplaces/.../external_plugins/` declaran MCPs de plugins *disponibles*.
 > El parser los marca `enabled: false` salvo que el plugin figure en `enabledPlugins`
